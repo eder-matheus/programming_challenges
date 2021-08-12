@@ -1,45 +1,56 @@
 // knight scape
 #include <iostream>
 #include <cmath>
+#include <vector>
+#include <algorithm>
 
 const int dimension = 8;
 const int num_pieces = 9;
 
-void findKnightMoviments(bool board[dimension][dimension], int row, int col) {
+void findKnightMoviments(int row, int col, std::vector<std::pair<int, int> >& movements) {
   for (int r = -2; r <= 2; r++) {
     for (int c = -2; c <= 2; c++) {
       if ((abs(r) == 2 && abs(c) == 1) ||
           (abs(r) == 1 && abs(c) == 2)) {
         if (((row + r) >= 0 && (row + r) < dimension) &&
             ((col + c) >= 0 && (col + c) < dimension)) {
-          board[row + r][col + c] = true;
+          movements.push_back(std::pair<int, int>(row+r, col+c));
         }
       }
     }
   }
 }
 
-void findPawnsAttacks(bool board[dimension][dimension], int row, int col) {
+void findPawnsAttacks(int row, int col, std::vector<std::pair<int, int> >& movements) {
   int attack_row = row - 1;
   int attack_col1 = col + 1;
   int attack_col2 = col - 1;
 
   if (attack_row < dimension) {
     if (attack_col1 < dimension) {
-      board[attack_row][attack_col1] = false;
+      movements.erase(
+        std::remove(
+            movements.begin(),
+            movements.end(),
+            std::pair<int, int>(attack_row, attack_col1)),
+            movements.end());
     }
-    if (attack_col2 > 0) {
-      board[attack_row][attack_col2] = false;
+    if (attack_col2 >= 0) {
+      movements.erase(
+        std::remove(
+            movements.begin(),
+            movements.end(),
+            std::pair<int, int>(attack_row, attack_col2)),
+            movements.end());
     }
   }
 }
 
 int main() {
-  bool board[dimension][dimension] = {false};
-
   int row = -1;
   int col;
   char column;
+  std::vector<std::pair<int, int> > movements;
 
   int cnt = 0;
   int test = 1;
@@ -49,27 +60,18 @@ int main() {
 
     // first row of input --> knight position
     if (cnt == 0) {
-      findKnightMoviments(board, row-1, col-1);
+      findKnightMoviments(row-1, col-1, movements);
     } else { // other rows --> pawns position
-      findPawnsAttacks(board, row-1, col-1);
+      findPawnsAttacks(row-1, col-1, movements);
     }
 
     cnt++;
 
     if (cnt == num_pieces) {
-      int valid_moviments = 0;
-      for (int i = 0; i < dimension; i++) {
-        for (int j = 0; j < dimension; j++) {
-          if (board[i][j]) {
-            valid_moviments++;
-            board[i][j] = false;
-          }
-        }
-      }
-
-      std::cout << "Caso de Teste #" << test << ": " << valid_moviments << " movimento(s).\n";
+      std::cout << "Caso de Teste #" << test << ": " << movements.size() << " movimento(s).\n";
       cnt = 0;
       test++;
+      movements.clear();
     }
   }
 
