@@ -48,7 +48,6 @@ void findPawnsAttacks(int row, int col, std::vector<std::pair<int, int> >& movem
 
 int main() {
   int row = -1;
-  int col;
   char column;
   std::vector<std::pair<int, int> > movements;
 
@@ -56,7 +55,7 @@ int main() {
   int test = 1;
   while (row != 0) {
     scanf("%d%c", &row, &column);
-    col = (int)column - 96;
+    int col = (int)column - 96;
 
     // first row of input --> knight position
     if (cnt == 0) {
