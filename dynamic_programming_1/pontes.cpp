@@ -29,6 +29,29 @@ int pontes(const std::vector<int> &pontes_por_regiao, int regiao,
   return solucao;
 }
 
+int pontesIter(const std::vector<int> &pontes_por_regiao, int total_regioes,
+               int total_pontes, std::vector<std::vector<int>> &tabela) {
+  int atual = 0;
+  for (int regiao = total_regioes - 1; regiao >= 0; regiao--) {
+    atual = 1 - atual;
+    for (int pontes = 0; pontes <= total_pontes; pontes++) {
+      int solucao = tabela[1 - atual][pontes];
+
+      if (pontes_por_regiao[regiao] <= pontes &&
+          solucao <
+              pontes_por_regiao[regiao] +
+                  tabela[1 - atual][pontes - pontes_por_regiao[regiao]]) {
+        solucao = pontes_por_regiao[regiao] +
+                  tabela[1 - atual][pontes - pontes_por_regiao[regiao]];
+      }
+
+      tabela[atual][pontes] = solucao;
+    }
+  }
+
+  return tabela[atual][total_pontes];
+}
+
 int main() {
   std::ios_base::sync_with_stdio(false);
   std::cin.tie(NULL);
@@ -37,9 +60,9 @@ int main() {
 
   while (std::cin >> num_regioes >> num_pontes) {
     std::vector<int> pontes_por_regiao(num_regioes, 0);
-    std::vector<std::vector<int>> tabela(num_regioes + 1);
+    std::vector<std::vector<int>> tabela(2);
     for (int i = 0; i < tabela.size(); i++) {
-      tabela[i].resize(num_pontes + 1, -1);
+      tabela[i].resize(num_pontes + 1, 0);
     }
 
     int rA, rB;
@@ -52,7 +75,7 @@ int main() {
     }
 
     int max_pontes =
-        pontes(pontes_por_regiao, 0, num_regioes, num_pontes, tabela);
+        pontesIter(pontes_por_regiao, num_regioes, num_pontes, tabela);
     if (max_pontes == num_pontes) {
       std::cout << "S\n";
     } else {
