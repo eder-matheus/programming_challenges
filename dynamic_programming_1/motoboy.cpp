@@ -27,6 +27,26 @@ int maxTempo(const std::vector<int> &t, const std::vector<int> &p, int pedido,
   return solucao;
 }
 
+int maxTempoIter(const std::vector<int> &t, const std::vector<int> &p,
+                 int pedidos_restantes, std::vector<std::vector<int>> &tabela) {
+  int atual = 0;
+  for (int pedido = p.size() - 1; pedido >= 0; pedido--) {
+    atual = 1 - atual;
+    for (int num_pedidos = 0; num_pedidos <= pedidos_restantes; num_pedidos++) {
+      int solucao = tabela[1 - atual][num_pedidos];
+
+      if (p[pedido] <= num_pedidos &&
+          solucao < (t[pedido] + tabela[1 - atual][num_pedidos - p[pedido]])) {
+        solucao = t[pedido] + tabela[1 - atual][num_pedidos - p[pedido]];
+      }
+
+      tabela[atual][num_pedidos] = solucao;
+    }
+  }
+
+  return tabela[atual][pedidos_restantes];
+}
+
 int main() {
   std::ios_base::sync_with_stdio(false);
   std::cin.tie(NULL);
@@ -38,16 +58,16 @@ int main() {
     std::cin >> max_p;
     std::vector<int> t(num_pedidos);
     std::vector<int> p(num_pedidos);
-    std::vector<std::vector<int>> tabela(num_pedidos + 1);
+    std::vector<std::vector<int>> tabela(2);
     for (int i = 0; i < tabela.size(); i++) {
-      tabela[i].resize(max_p + 1, -1);
+      tabela[i].resize(max_p + 1, 0);
     }
 
     for (int i = 0; i < num_pedidos; i++) {
       std::cin >> t[i] >> p[i];
     }
 
-    std::cout << maxTempo(t, p, 0, max_p, tabela) << " min.\n";
+    std::cout << maxTempoIter(t, p, max_p, tabela) << " min.\n";
 
     std::cin >> num_pedidos;
   }
